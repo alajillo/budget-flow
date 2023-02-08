@@ -1,50 +1,57 @@
-import { useState } from 'react';
-import ReactFlow, { Controls, Background} from 'reactflow';
+import React, { useMemo } from 'react';
+import ReactFlow, {Panel} from 'reactflow';
+import { shallow } from 'zustand/shallow';
+import BudgetNode from './CustomNode';
 import 'reactflow/dist/style.css';
+import createBudgetNode from '../nodeTemplates/budgetNode';
+import useStore from '../store';
 
-const Flow = () => {
-	const nodes = [
-		{
-			id : '1',
-			data : {
-				label : 'Hello'
-			},
-			position : {
-				x : 20,
-				y : 20,
-			},
-		},
-		{
-			id : '2',
-			data : {
-				label : 'Hello'
-			},
-			position : {
-				x : 100,
-				y : 100,
-			},
-		}
-	]
-	const edges = [
-		{
-			id : '1-2',
-			source: '1',
-			target : '2',
-			label : 'to the',
-			type : 'step'
-		}
-	]
+const selector = (state) => ({
+  nodes: state.nodes,
+  edges: state.edges,
+  onNodesChange: state.onNodesChange,
+  onEdgesChange: state.onEdgesChange,
+  onConnect: state.onConnect,
+  addNode : state.addNode,
+  budget : state.budget,
+  onChangeBudget : state.onChangeBudget
+});
+
+function Flow() {
+	const nodeTypes = useMemo(() => ({budget :BudgetNode}),[])	
+	const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, budget, onChangeBudget } = useStore(selector, shallow);
+	const onCreateBudgetNode = () => {
+		const newNode = createBudgetNode({id : `budget-${nodes.length}`, data : { value : 0}})
+		addNode(newNode)
+	}
 	return (
-		<div className='w-full h-full'>
-			<ReactFlow
-				nodes={nodes}
-				edges={edges}
-			>
-				<Background/>
-				<Controls/>
-			</ReactFlow>
-		</div>
-	)
+	<ReactFlow
+		nodes={nodes}
+		edges={edges}
+		onNodesChange={onNodesChange}
+		onEdgesChange={onEdgesChange}
+		onConnect={onConnect}
+		nodeTypes={nodeTypes}
+		fitView
+	>
+		<Panel position='top-center'>
+			<button 
+				className=' bg-blue-500 border-blue-500 border-4 p-4 rounded-md text-white font-bold'
+				onClick={onCreateBudgetNode}
+				>
+					create budget node
+			</button>
+		</Panel>
+		<Panel position='top-left'>
+			<input
+				type='number'
+				value={budget}
+				className=' bg-blue-500 border-blue-500 border-4 p-4 rounded-md text-white font-bold'
+				onChange={(e) => onChangeBudget(e.target.value)}
+				/>
+		</Panel>
+	</ReactFlow>
+  );
 }
 
 export default Flow;

@@ -4,7 +4,6 @@ import {
 	Edge,
 	EdgeChange,
 	Node,
-	NodeAddChange,
 	addEdge,
 	OnNodesChange,
 	OnEdgesChange,
@@ -38,7 +37,8 @@ const useStore = create<RFState>((set,get) => ({
 		})
 	},
 	getNodeById : (targetId : string) => {
-		return get().nodes.find(({id}) => targetId === id)
+		const { nodes } = get();
+		return nodes.find(({id}) => targetId === id)
 	},
 	onChangeBudget : (value : number) => {
 		set({
@@ -46,23 +46,24 @@ const useStore = create<RFState>((set,get) => ({
 		})
 	},
 	onConnect : (connection : Connection) => {
+		const { nodes, edges, budget, getNodeById } = get();
 		set({
 			edges : addEdge({
 				...connection,
-				label : get().budget,
+				label : budget,
 				animated : true
-			}, get().edges)
+			}, edges)
 		})
 		const {source, target} = connection;
-		const sourceNode = get().getNodeById(source);
-		const targetNode = get().getNodeById(target);
+		const sourceNode = getNodeById(source);
+		const targetNode = getNodeById(target);
 		set({
-			nodes : get().nodes.map(node => {
+			nodes : nodes.map(node => {
 				if(node.id === targetNode.id){
 					return {
 						...node,
 						data : {
-							budget : (parseInt(sourceNode.data.budget) + parseInt(get().budget))
+							budget : (parseInt(sourceNode.data.budget) + parseInt(budget))
 						}
 					}
 				}
@@ -71,8 +72,9 @@ const useStore = create<RFState>((set,get) => ({
 		})
 	},
 	addNode : (node) => {
+		const { nodes : prevNodes} = get();
 		set({
-			nodes : [node, ...get().nodes]
+			nodes : [node, ...prevNodes]
 		})
 	}
 }))

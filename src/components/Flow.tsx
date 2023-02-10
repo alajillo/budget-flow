@@ -36,7 +36,7 @@ function Flow() {
 	>
 		<Panel position='top-center'>
 			<button 
-				className=' bg-blue-500 border-blue-500 border-4 p-4 rounded-md text-white font-bold'
+				className='text-blue-500 border-blue-500 border-4 p-4 rounded-md font-bold'
 				onClick={onCreateBudgetNode}
 				>
 					create budget node
@@ -46,7 +46,7 @@ function Flow() {
 			<input
 				type='number'
 				value={budget}
-				className=' bg-blue-500 border-blue-500 border-4 p-4 rounded-md text-white font-bold'
+				className='text-blue-500 border-blue-500 border-4 p-4 rounded-md font-bold'
 				onChange={(e) => onChangeBudget(e.target.value)}
 				/>
 		</Panel>
